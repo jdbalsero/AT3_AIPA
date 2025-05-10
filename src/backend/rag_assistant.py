@@ -28,7 +28,7 @@ class RAGAssistant:
         )
         self.disclaimer = (
             "\n\n**Disclaimer:** Be mindful that this is an AI assistant. "
-            "Please consult with a professional before proceeding."
+            "If you need specialized assistance please refer to our technical support team."
         )
         # self.system_config = """You are a digital consultant specializing in Australia's evolving greenhouse gas (GHG) emission regulations.
         # Your task is to help companies navigate the complexities of compliance, accurate emission calculations, and industry-specific scope definitions.
@@ -36,22 +36,19 @@ class RAGAssistant:
         # If the answer is not available or unclear, state that you do not know.
         # """
 
-        self.system_config = """You are a digital GHG emissions consultant focused on Australian companies operating under Australia's evolving climate disclosure regulations, effective from 2025. All companies you assist are based in Australia.
-            Your core role is to guide companies through:
-            - Regulatory compliance under Australian laws (e.g., Treasury Act 2024, ASRS, NGER Scheme)
-            - Emission calculation practices across Scope 1, Scope 2, and Scope 3
-            - Disclosure structure aligned with ASRS (Governance, Strategy, Risk, Metrics & Targets)
-            - Industry-specific guidance and emission sources
-
+        self.system_config = """You are a digital customer service consultant for the Mathiesen Group Company, a multinational company specializing in the supply of raw materials and industrial inputs across various sectors. 
+        Key Industries Served:
+        Paper and Pulp raw materials
+        Your core role is to guide customers to understand the specifications of products they offer and answer common questions related to them
+        
             Your responses must:
             - Be practical, accurate, and tailored to the company’s context
-            - Default to Australian regulatory requirements
-            - Reference other frameworks (e.g., U.S. EPA, ISO 14064, GHG Protocol, ESRS, API Compendium) **only if explicitly requested**
+            - Reference useful information related to the products, that can be found public in some standard frameworks, **only if explicitly requested**
             - Indicate if data is insufficient or unclear — do not guess
+            - If the context provided to guide your response is not related to the product mentioned in the previous conversation please omit it.
             - Answer concisely but contextually. Include all relevant information from the context without omitting or summarizing key points. Do not exclude details simply for brevity; instead, express them using clear and efficient language. Your response should be short, but not at the cost of completeness or nuance.
 
-            Your goal is to act as a trustworthy, regulation-aware emissions advisor grounded in Australia’s 2025 climate reporting framework.
-            """
+        Your goal is to act as a trustworthy, customer service advisor grounded in the multinational provision of raw materials for paper and pulp industry."""
 
         # configuration of the system role
         self.conversation = [{"role": "system", "content": self.system_config}]
@@ -87,28 +84,14 @@ class RAGAssistant:
             "loan",
             "mortgage",
         ]
+
+        self.product_names = ["CYLUBE 901", "Clean 1005", "Clean 1101", "CYLUBE 801", "BIOTROL 117",
+        "BIOTROL 158", "BIOFOAM P202", "Biofoam W11", "Biores 7", "Biofix 110",
+        "Biofix 170", "CYTREAT 723", "DEINK 1003", "MICRODOR T2", "POLYREN 5102",
+        "Polyren WS66", "Rensoft 713", "RENZYME AS-2", "Renzyme PCR4", "Saniter 405",
+        "SANITER 420"]
         # nlp model financial and legal topic detections
         self.nlp = load("en_core_web_md")
-
-        # define GHG keywords
-        self.ghg_keywords = [
-            "ghg",
-            "greenhouse",
-            "emission",
-            "emissions",
-            "carbon",
-            "sustainability",
-            "climate",
-            "regulation",
-            "regulatory",
-            "compliance",
-            "scope",
-            "gas",
-            "reporting",
-            "mitigation",
-            "policy",
-            "energy",
-        ]
 
     def is_legal_or_financial(self, sample_text: str) -> bool:
         """
@@ -133,33 +116,23 @@ class RAGAssistant:
             flag = True
         return flag
 
-    # def is_related_to_ghg(
-    #     self,
-    #     user_prompt : str
-    # ) -> bool:
-    #     """
-    #     check if the user prompt is related to GHG regulations
-    #     """
-    #     for key_word in self.ghg_keywords:
-    #         return any(keyword in user_prompt.lower() for keyword in self.ghg_keywords)
-
     def is_related_to_ghg(self, user_prompt: str) -> str:
         """
         check if the user prompt is related to GHG regulations
         """
         system_prompt_second_model = """
         
-        You are are reviewing the context of a Green House and Gas or Environmental Sustainability Governance conversation
-        You are given a question and you need to determine if the question is related to Green House and Gas Emissions Regulations or Environmental Sustainability Governance.
-        If the question is related to Green House and Gas Emissions Regulations or Environmental Sustainability Governance, you need to return True.
-        If the question is not related to Green House and Gas Emissions Regulations or Environmental Sustainability Governance, you need to return False.
+        You are are reviewing the context of a customer service conversation related to paper and pulp raw materials provided by Mathiesen Group.
+        You are given a question and you need to determine if the question is related to specifications of products offered by the company or common questions of their use.
+        If the question is related to customer support of the products offered by Mathiesen Group in the paper and pulp industry, you need to return True.
+        If the question is not related to customer support of the products offered by Mathiesen Group in the paper and pulp industry, you need to return False.
         
         If the question is a greeting, a thank you, or a goodbye,s return True
-        REMEMBER: You are an advisor specialized in greenhouse gas (GHG) emissions. Your role is to help users understand concepts, policies, impacts, metrics, and strategies related to the reduction, measurement, and management of greenhouse gas emissions.
+        REMEMBER: You are an advisor specialized in customer support of a company related to the supply of raw materials and industrial inputs.
 
-        Your knowledge is strictly limited to the topic of GHG emissions. You are not allowed to generate code, write scripts, perform general technical calculations, answer unrelated questions (such as health, travel, recipes, general math, or any other field), or act as a general virtual assistant.
+        Your knowledge is strictly limited to the products offered by the company and the guidance in the proper use of them. You are not allowed to generate code, write scripts, perform general technical calculations, answer unrelated questions (such as health, travel, recipes, general math, or any other field), or act as a general virtual assistant.
 
-        If a user asks a question outside your area of expertise or requests programming, calculations, or other types of technical assistance not directly related to GHG emissions, you must kindly respond False as you cannot help with that and remind them that your purpose is to serve as a GHG advisor.
+        If a user asks a question outside your area of expertise or requests programming, calculations, or other types of technical assistance not directly related to the principal topic, you must kindly respond False as you cannot help with that.
         
         Limit your answer to True or False. NOTHING ELSE.
         """
@@ -202,11 +175,6 @@ class RAGAssistant:
         return "False"
 
     async def generate_response(self, user_prompt: str, context: str = None):
-
-        # check if the user prompt is related to GHG topic
-        is_related = self.is_related_to_ghg(user_prompt)
-        if is_related != "True":
-            return "This digital consultant specializes in Australian GHG emission regulations. Please rephrase your question to focus on topics such as compliance, emission calculations, or scope definitions related to GHG emissions."
 
         client = AsyncGroq(api_key=getenv("GROQ_API_KEY"))
         # initialize the conversation

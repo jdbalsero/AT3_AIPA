@@ -35,17 +35,19 @@ if "messages" not in st.session_state:
 
 st.session_state["company_info"] = None
 
+st.set_page_config(page_title="Mathiesen Group AI Assistant", layout="wide")
+
 with st.sidebar:
     selected = option_menu(
         menu_title="Menu",
         # options=["Company Form", "AI Consultant"],
-        options=["AI Consultant"],
+        options=["AI Assistant"],
         icons=["file-earmark-text", "chat"],
         default_index=0,
     )
 
 # Display the selected page
-if selected == "AI Consultant":
+if selected == "AI Assistant":
     display_ai_consultant()
 elif selected == "Company Form":
     display_company_form()

@@ -5,8 +5,14 @@ def display_ai_consultant():
 
     rag_class = st.session_state.rag_class
 
-    st.header("AI Consultant")
+    st.header("Mathiesen Group AI Assistant")
 
+
+    st.session_state.messages.append({
+        "role": "assistant",
+        "content": "Hello. Welcome to the Mathiesen Group Company, a leading supplier of raw materials and industrial inputs for various sectors, including the paper and pulp industry. How can I assist you today? Are you looking for information on our products or services?"
+    })
+    
     # Display chat messages from history on app rerun
     for message in st.session_state.messages:
         with st.chat_message(message["role"]):  
@@ -24,14 +30,9 @@ def display_ai_consultant():
         with st.chat_message("assistant"):
             placeholder = st.empty()
 
-            # Get both chunks and metadata
-            relevant_chunks, results_metadata = rag_class.query_documents(question=prompt)
-
             with st.spinner("🍃 Generating Response..."):
                 response = rag_class.generate_response(
-                        question=prompt, 
-                        relevant_chunks=relevant_chunks, 
-                        results_metadata=results_metadata
+                        question=prompt
                     )
                 
             placeholder.markdown(response)

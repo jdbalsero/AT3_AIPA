@@ -10,7 +10,6 @@ from typing import Dict, List, Tuple
 from collections import defaultdict
 
 # Set page configuration (MUST be first Streamlit command)
-st.set_page_config(page_title="GHG Emissions Guidance Form", layout="wide")
 
 def display_company_form():
 

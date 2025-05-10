@@ -92,7 +92,7 @@ class Embedding_Generation:
                 })
         return documents
 
-    def split_text(self, text, chunk_size=1000, chunk_overlap=200):
+    def split_text(self, text, chunk_size=250, chunk_overlap=200):
         # First, split into sentences
         sentences = sent_tokenize(text)
         

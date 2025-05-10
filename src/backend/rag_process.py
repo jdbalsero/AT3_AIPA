@@ -35,7 +35,16 @@ class rag_process:
 
         return relevant_chunks, metadatas
 
-    def generate_response(self, question, relevant_chunks, results_metadata):
+    def generate_response(self, question):
+        rag_assistant = st.session_state.rag_assistant
+        # check if the user prompt is related to GHG topic
+        is_related = rag_assistant.is_related_to_ghg(question)
+        if is_related != "True":
+            return "This digital consultant specializes in products offered by Mathiesen Group on the industry of paper an pulp. Please rephrase your question to focus on topics such as specifications of products, use and dosage, storage, benefits, applications, handling and package regulations, or product safety."
+
+        # Get both chunks and metadata
+        relevant_chunks, results_metadata = self.query_documents(question=question)
+        
         # Format context with source information
         formatted_chunks = []
         
@@ -49,8 +58,6 @@ class rag_process:
             formatted_chunks.append(formatted_chunk)
             
         context = "\n\n---\n\n".join(formatted_chunks)  # Added separator for better readability
-        
-        rag_assistant = st.session_state.rag_assistant
 
         try:
             answer = asyncio.run(rag_assistant.generate_response(
