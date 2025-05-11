@@ -32,6 +32,10 @@ if "rag_assistant" not in st.session_state:
 # Initialize chat history
 if "messages" not in st.session_state:
     st.session_state.messages = []
+    st.session_state.messages.append({
+        "role": "assistant",
+        "content": "Hello. Welcome to the Mathiesen Group Company, a leading supplier of raw materials and industrial inputs for various sectors, including the paper and pulp industry. How can I assist you today? Are you looking for information on our products or services?"
+    })
 
 st.session_state["company_info"] = None
 

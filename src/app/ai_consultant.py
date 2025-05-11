@@ -6,12 +6,6 @@ def display_ai_consultant():
     rag_class = st.session_state.rag_class
 
     st.header("Mathiesen Group AI Assistant")
-
-
-    st.session_state.messages.append({
-        "role": "assistant",
-        "content": "Hello. Welcome to the Mathiesen Group Company, a leading supplier of raw materials and industrial inputs for various sectors, including the paper and pulp industry. How can I assist you today? Are you looking for information on our products or services?"
-    })
     
     # Display chat messages from history on app rerun
     for message in st.session_state.messages:
